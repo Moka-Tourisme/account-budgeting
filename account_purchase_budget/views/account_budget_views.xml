@@ -1,0 +1,65 @@
+<odoo>
+    <record id="view_crossovered_budget_lines_pivot" model="ir.ui.view">
+        <field name="name">crossovered.budget.lines.pivot</field>
+        <field name="model">crossovered.budget.lines</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="analytic_account_id" type="row"/>
+                <field name="date_from" type="col"/>
+                <field name="date_to" type="col"/>
+                <field name="planned_amount" type="measure"/>
+                <field name="practical_amount" type="measure"/>
+                <field name="theoretical_amount" type="measure"/>
+                <field name="percentage" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_crossovered_budget_lines_pivot_inherit" model="ir.ui.view">
+        <field name="name">crossovered.budget.lines.pivot.inherit</field>
+        <field name="model">crossovered.budget.lines</field>
+        <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_lines_pivot"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='planned_amount']" position="after">
+                <field name="committed_amount" type="measure"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_account_analytic_account_form_inherit_budget_purchase" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.inherit.budget.purchase</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="account_budget_oca.view_account_analytic_account_form_inherit_budget"/>
+        <field name="arch" type="xml">
+            <field name="planned_amount" position="after">
+                <field name="committed_amount" sum="Committed Amount"
+                       widget="monetary"/>
+            </field>
+        </field>
+    </record>
+    <record id="view_crossovered_budget_view_form_inherit_purchase" model="ir.ui.view">
+        <field name="name">crossovered.budget.view.form.inherit.purchase</field>
+        <field name="model">crossovered.budget</field>
+        <field name="inherit_id" ref="account_budget_oca.crossovered_budget_view_form"/>
+        <field name="arch" type="xml">
+            <field name="planned_amount" position="after">
+                <field name="committed_amount" sum="Committed Amount"
+                       widget="monetary"/>
+            </field>
+        </field>
+    </record>
+
+
+    <record id="view_crossovered_budget_lines_form_inherit" model="ir.ui.view">
+        <field name="name">crossovered.budget.lines.form.inherit</field>
+        <field name="model">crossovered.budget.lines</field>
+        <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_line_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button class="oe_stat_button" name="action_view_purchase_order_lines" type="object"
+                        attrs="{'invisible': [('purchase_order_line_count', '=', 0)]}" icon="fa-credit-card-alt">
+                    <field string="Purchase Order(s)" name="purchase_order_line_count" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+    <function model="crossovered.budget.lines" name="_action_update_budget_purchase_lines"/>
+</odoo>

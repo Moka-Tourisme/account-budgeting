@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="crossovered_budget_lines_inherit" model="ir.ui.view">
+        <field name="name">crossovered.budget.lines.inherit</field>
+        <field name="model">crossovered.budget.lines</field>
+        <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='planned_amount']" position="after">
+                <field name="committed_amount" widget="monetary"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
