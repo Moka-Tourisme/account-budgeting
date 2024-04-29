@@ -192,6 +192,7 @@
                                             sum="Theoretical Amount"
                                             widget="monetary"
                                     />
+                                    <field name="balance_amount" widget="monetary"/>
                                     <field name="percentage"/>
                                 </tree>
                                 <form>
@@ -412,6 +413,7 @@
                 <field name="planned_amount" widget="monetary"/>
                 <field name="practical_amount" widget="monetary"/>
                 <field name="theoretical_amount" widget="monetary"/>
+                <field name="balance_amount" widget="monetary"/>
                 <field name="percentage"/>
             </tree>
         </field>
@@ -423,7 +425,7 @@
             <form>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="action_view_invoices" type="object"
+                        <button class="oe_stat_button" name="action_view_invoice_lines" type="object"
                                 attrs="{'invisible': [('invoice_line_count', '=', 0)]}"
                                 icon="fa-pencil-square-o">
                             <field string="Invoice(s)" name="invoice_line_count" widget="statinfo"/>
@@ -440,6 +442,7 @@
                         <field name="practical_amount" widget="monetary"/>
                         <field name="theoretical_amount" widget="monetary"/>
                         <field name="percentage"/>
+                        <field name="balance_amount" widget="monetary"/>
                         <field
                                 name="company_id"
                                 options="{'no_create': True}"
@@ -460,8 +463,7 @@
                 <field name="date_to" type="col"/>
                 <field name="planned_amount" type="measure"/>
                 <field name="practical_amount" type="measure"/>
-                <field name="theoretical_amount" type="measure"/>
-                <field name="percentage" type="measure"/>
+                <field name="balance_amount" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -478,5 +480,5 @@
             action="act_crossovered_budget_lines_view"
             sequence="20"
     />
-    <function model="crossovered.budget.lines" name="_action_update_budget_invoice_lines"/>
+<!--    <function model="crossovered.budget.lines" name="_action_update_budget_invoice_lines"/>-->
 </odoo>

@@ -138,16 +138,20 @@ class CrossoveredBudgetLines(models.Model):
     date_to = fields.Date(string="End Date", required=True)
     paid_date = fields.Date()
     planned_amount = fields.Float(required=True, digits=0)
-    practical_amount = fields.Float(compute="_compute_practical_amount", digits=0, store=True)
-    theoretical_amount = fields.Float(compute="_compute_theoretical_amount", digits=0, store=True)
-    percentage = fields.Float(compute="_compute_percentage", string="Achievement", store=True)
+    practical_amount = fields.Float(compute="_compute_practical_amount", digits=0, store=True, precompute=True)
+    theoretical_amount = fields.Float(compute="_compute_theoretical_amount", digits=0)
+    percentage = fields.Float(compute="_compute_percentage", string="Achievement")
     company_id = fields.Many2one(
         related="crossovered_budget_id.company_id", store=True, readonly=True
     )
 
+    balance_amount = fields.Float(
+        compute="_compute_balance_amount", string="Balance Amount", store=True, precompute=True
+    )
+
     invoice_line_ids = fields.One2many(
         comodel_name="account.move.line",
-        inverse_name="crossovered_budget_line_id",
+        compute="_compute_invoice_line_ids",
         string="Invoice Lines",
     )
 
@@ -155,6 +159,36 @@ class CrossoveredBudgetLines(models.Model):
         compute="_compute_invoice_line_count",
         string="Invoice Lines",
     )
+
+    def _compute_invoice_line_ids(self):
+        for line in self:
+            invoice_line_ids = []
+            acc_ids = line.general_budget_id.account_ids.ids
+            date_to = line.date_to
+            date_from = line.date_from
+            if line.analytic_account_id.id:
+                self.env.cr.execute(
+                    """
+                    SELECT DISTINCT aml.move_id
+                    FROM account_move_line as aml
+                    INNER JOIN account_analytic_line as aal ON aal.move_id = aml.id 
+                    WHERE aal.account_id=%s
+                        AND (aal.date between %s
+                        AND %s)
+                        AND aal.general_account_id IN %s""",
+                    (line.analytic_account_id.id, date_from, date_to, tuple(acc_ids)),
+                )
+                move_ids = [move[0] for move in self.env.cr.fetchall()]
+                print("move_ids: ", move_ids)
+            #   For each move_ids get the invoice_line_ids that have the same analytic_account_id and store them in invoice_line_ids variable
+                invoice_line_ids = self.env["account.move.line"].search(
+                    [
+                        ("move_id", "in", move_ids),
+                        ("analytic_account_id", "=", line.analytic_account_id.id),
+                        ("account_id", "in", acc_ids),
+                    ]
+                )
+            line.invoice_line_ids = invoice_line_ids
 
     @api.depends(
         "general_budget_id.account_ids", "date_from", "date_to", "analytic_account_id", "analytic_account_id.line_ids"
@@ -176,6 +210,7 @@ class CrossoveredBudgetLines(models.Model):
                         AND general_account_id IN %s""",
                     (line.analytic_account_id.id, date_from, date_to, tuple(acc_ids)),
                 )
+                print("acc_ids: ", acc_ids)
                 result = self.env.cr.fetchone()[0] or 0.0
             line.practical_amount = result
 
@@ -243,9 +278,19 @@ class CrossoveredBudgetLines(models.Model):
             )
 
             rec.write({"invoice_line_ids": [(4, line.id) for line in invoice_line_ids]})
+    def action_view_invoice_lines(self):
+        action = self.env.ref('account_budget_oca.action_account_move_line_tree').read()[0]
+        action['domain'] = [('id', 'in', self.invoice_line_ids.ids)]
+        return action
 
-    def action_view_invoices(self):
-        action = self.env.ref('account.action_move_in_invoice_type').read()[0]
-        action['domain'] = [('id', 'in', self.invoice_line_ids.move_id.ids)]
+    def action_view_analytic_lines(self):
+        action = self.env.ref('analytic.account_analytic_line_action_entries').read()[0]
+        action['domain'] = [('id', 'in', self.analytic_line_ids.ids)]
         action['context'] = {'create': False}
         return action
+
+
+    @api.depends("planned_amount", "practical_amount")
+    def _compute_balance_amount(self):
+        for line in self:
+            line.balance_amount = line.planned_amount - abs(line.practical_amount)

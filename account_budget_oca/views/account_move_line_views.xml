@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_account_move_line_search" model="ir.ui.view">
+        <field name="name">account.move.line.search</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <group expand="0" string="Group By">
+                    <filter string="Analytic Account" name="group_analytic_account_id"
+                            context="{'group_by': 'analytic_account_id'}"/>
+                    <filter string="Supplier" name="group_partner_id" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Account Move" name="group_move_id" context="{'group_by': 'move_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="view_account_move_line_tree" model="ir.ui.view">
+        <field name="model">account.move.line</field>
+        <field name="name">account.move.line.tree</field>
+        <field name="arch" type="xml">
+            <tree edit="0" editable="bottom">
+                <field name="move_name" invisible="1"/>
+                <field name="product_id"
+                       optional="show"
+                       domain="
+                                                    context.get('default_move_type') in ('out_invoice', 'out_refund', 'out_receipt')
+                                                    and [('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]
+                                                    or [('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]
+                                               "/>
+                <field name="name" widget="section_and_note_text"/>
+                <field name="move_id"/>
+                <field name="account_id"
+                       groups="account.group_account_readonly"
+                       options="{'no_create': True}"
+                       domain="[('deprecated', '=', False), ('user_type_id.type', 'not in', ('receivable', 'payable')), ('company_id', '=', parent.company_id), ('is_off_balance', '=', False)]"
+                       attrs="{'required': [('display_type', '=', False)]}"/>
+                <field name="analytic_account_id"
+                       domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
+                       groups="analytic.group_analytic_accounting"
+                       optional="show"/>
+                <field name="analytic_tag_ids"
+                       domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
+                       groups="analytic.group_analytic_tags"
+                       optional="hide"
+                       widget="many2many_tags"/>
+                <field name="quantity" optional="hide"/>
+                <field name="product_uom_category_id" invisible="1"/>
+                <field name="product_uom_id" string="UoM" groups="uom.group_uom" optional="show"/>
+                <field name="price_unit" string="Price" optional="hide"/>
+                <field name="discount" string="Disc.%" optional="hide"/>
+                <field name="tax_ids" widget="many2many_tags"
+                       domain="[('type_tax_use', '=?', parent.invoice_filter_type_domain), ('company_id', '=', parent.company_id), ('country_id', '=', parent.tax_country_id)]"
+                       context="{'append_type_to_tax_name': not parent.invoice_filter_type_domain}"
+                       options="{'no_create': True}"
+                       optional="show"/>
+                <field name="price_subtotal"
+                       string="Subtotal"
+                       groups="account.group_show_line_subtotals_tax_excluded"/>
+                <field name="price_total"
+                       string="Total"
+                       groups="account.group_show_line_subtotals_tax_included"/>
+                <field name="debit" optional="hide"/>
+                <field name="credit" optional="hide"/>
+                <field name="balance_credit_debit" string="Balance"/>
+                <field name="date" optional="hide"/>
+
+                <!-- Others fields -->
+                <field name="partner_id" optional="hide"/>
+                <field name="amount_currency" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+
+                <field name="date_maturity" invisible="1"/>
+
+                <field name="group_tax_id" invisible="1"/>
+                <field name="tax_line_id" invisible="1"/>
+                <field name="tax_repartition_line_id" invisible="1"/>
+                <field name="tax_tag_ids" invisible="1"/>
+                <field name="tax_base_amount" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="company_currency_id" invisible="1"/>
+                <field name="recompute_tax_line" invisible="1" force_save="1"/>
+                <field name="display_type" force_save="1" invisible="1"/>
+                <field name="is_rounding_line" invisible="1"/>
+                <field name="exclude_from_invoice_tab" invisible="1"/>
+                <field name="account_internal_type" invisible="1"/>
+                <field name="account_internal_group" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_account_move_line_tree">
+        <field name="name">Account Move Line</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_account_move_line_tree"/>
+        <field name="search_view_id" ref="view_account_move_line_search"/>
+        <field name="context">{'create': False, 'search_default_group_analytic_account_id': 1,
+            'search_default_group_partner_id': 1, 'search_default_group_move_id': 1}
+        </field>
+    </record>
+
+</odoo>

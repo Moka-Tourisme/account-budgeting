@@ -15,9 +15,8 @@ class CrossoveredBudgetLines(models.Model):
 
     purchase_order_line_ids = fields.One2many(
         comodel_name="purchase.order.line",
-        inverse_name="crossovered_budget_line_id",
+        compute="_compute_purchase_order_line_ids",
         string="Purchase Order Lines",
-        store=True,
     )
 
     purchase_order_line_count = fields.Integer(
@@ -38,7 +37,7 @@ class CrossoveredBudgetLines(models.Model):
                 data = self.env['purchase.order.line'].read_group(
                     domain=[('account_analytic_id', '=', line.analytic_account_id.id),
                             ('order_id.state', '=', 'purchase'), ('order_id.date_approve', '>=', date_from),
-                            ('order_id.date_approve', '<=', date_to), ('order_id.state', '=', 'purchase')],
+                            ('order_id.date_approve', '<=', date_to), ('order_id.invoice_status', '!=', 'invoiced')],
                     fields=['price_subtotal'],
                     groupby=['account_analytic_id'],
                     lazy=False
@@ -46,31 +45,31 @@ class CrossoveredBudgetLines(models.Model):
                 print("data: ", data)
                 if data:
                     result = data[0]['price_subtotal']
-            line.committed_amount = result
+            line.committed_amount = -result
 
+
+    def _compute_purchase_order_line_ids(self):
+        for line in self:
+            purchase_line_ids = []
+            date_to = line.date_to
+            date_from = line.date_from
+            if line.analytic_account_id.id:
+                purchase_line_ids = self.env['purchase.order.line'].search(
+                    [('account_analytic_id', '=', line.analytic_account_id.id),
+                     ('order_id.state', '=', 'purchase'), ('order_id.date_approve', '>=', date_from),
+                     ('order_id.date_approve', '<=', date_to), ('order_id.invoice_status', '!=', 'invoiced')]
+                )
+            line.purchase_order_line_ids = purchase_line_ids
     @api.depends('purchase_order_line_ids')
     def _compute_purchase_order_line_count(self):
         for line in self:
             line.purchase_order_line_count = len(line.purchase_order_line_ids)
 
     def action_view_purchase_order_lines(self):
-        action = self.env.ref('purchase.purchase_form_action').read()[0]
-        action['domain'] = [('id', 'in', self.purchase_order_line_ids.order_id.ids)]
-        action['context'] = {'create': False}
+        action = self.env.ref('account_purchase_budget.action_purchase_order_line_tree').read()[0]
+        action['domain'] = [('id', 'in', self.purchase_order_line_ids.ids)]
         return action
 
-    @api.model
-    def _action_update_budget_purchase_lines(self):
-        print("PASSAGE ICI action_update_budget_purchase_lines")
-        recs = self.env["crossovered.budget.lines"].search([])
-        for rec in recs:
-            purchase_order_line_ids = self.env["purchase.order.line"].search(
-                [
-                    ("account_analytic_id", "=", rec.analytic_account_id.id),
-                    ("order_id.state", "=", "purchase"),
-                    ("order_id.date_approve", ">=", rec.date_from),
-                    ("order_id.date_approve", "<=", rec.date_to),
-                ]
-            )
-
-            rec.write({"purchase_order_line_ids": [(4, line.id) for line in purchase_order_line_ids]})
+    def _compute_balance_amount(self):
+        for line in self:
+            line.balance_amount = line.planned_amount - (abs(line.practical_amount) + (abs(line.committed_amount)))

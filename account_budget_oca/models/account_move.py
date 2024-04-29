@@ -11,6 +11,15 @@ class AccountMoveLine(models.Model):
         comodel_name="crossovered.budget.lines", string="Budget Line"
     )
 
+    balance_credit_debit = fields.Monetary(
+        compute="_compute_balance_credit_debit", string="Balance Credit Debit", store=True, precompute=True
+    )
+
+    @api.depends("debit", "credit")
+    def _compute_balance_credit_debit(self):
+        for line in self:
+            line.balance_credit_debit = line.debit - line.credit
+
     def write(self, vals):
         res = super().write(vals)
         if vals.get('account_analytic_id'):

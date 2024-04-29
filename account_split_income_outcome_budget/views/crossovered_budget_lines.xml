@@ -6,7 +6,8 @@
         <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_line_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='planned_amount']" position="after">
-                <field name="committed_amount" widget="monetary"/>
+                <field name="split_income" invisible="1"/>
+                <field name="income_amount" widget="monetary" attrs="{'invisible': [('split_income', '!=', True)]}"/>
             </xpath>
         </field>
     </record>
@@ -15,8 +16,11 @@
         <field name="model">crossovered.budget.lines</field>
         <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_line_form"/>
         <field name="arch" type="xml">
+            <field name="crossovered_budget_id" position="after">
+                <field name="split_income"/>
+            </field>
             <field name="practical_amount" position="after">
-                <field name="committed_amount" widget="monetary"/>
+                <field name="income_amount" widget="monetary" attrs="{'invisible': [('split_income', '!=', True)]}"/>
             </field>
         </field>
     </record>

@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_lines_pivot"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='planned_amount']" position="after">
-                <field name="committed_amount" type="measure"/>
+                <field name="income_amount" type="measure"/>
             </xpath>
         </field>
     </record>
@@ -15,7 +15,7 @@
         <field name="inherit_id" ref="account_budget_oca.view_account_analytic_account_form_inherit_budget"/>
         <field name="arch" type="xml">
             <field name="planned_amount" position="after">
-                <field name="committed_amount" sum="Committed Amount"
+                <field name="income_amount" sum="Income Amount"
                        widget="monetary"/>
             </field>
         </field>
@@ -26,7 +26,7 @@
         <field name="inherit_id" ref="account_budget_oca.crossovered_budget_view_form"/>
         <field name="arch" type="xml">
             <field name="planned_amount" position="after">
-                <field name="committed_amount" sum="Committed Amount"
+                <field name="income_amount" sum="Income Amount"
                        widget="monetary"/>
             </field>
         </field>
@@ -39,9 +39,9 @@
         <field name="inherit_id" ref="account_budget_oca.view_crossovered_budget_line_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                <button class="oe_stat_button" name="action_view_purchase_order_lines" type="object"
-                        attrs="{'invisible': [('purchase_order_line_count', '=', 0)]}" icon="fa-credit-card-alt">
-                    <field string="Purchase Order(s)" name="purchase_order_line_count" widget="statinfo"/>
+                <button class="oe_stat_button" name="action_view_income_invoice_lines" type="object"
+                        attrs="{'invisible': ['|', ('income_invoice_line_count', '=', 0), ('split_income', '!=', True)]}" icon="fa-pencil-square-o">
+                    <field string="Income Sale Order(s)" name="income_invoice_line_count" widget="statinfo"/>
                 </button>
             </xpath>
         </field>
