@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-29 09:55+0000\n"
-"PO-Revision-Date: 2024-04-29 09:55+0000\n"
+"POT-Creation-Date: 2024-05-02 08:01+0000\n"
+"PO-Revision-Date: 2024-05-02 08:01+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -31,12 +31,13 @@ msgstr ""
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.view_account_move_line_search
 msgid "Account Move"
-msgstr "Lignes de facturation"
+msgstr "Facture"
 
 #. module: account_budget_oca
 #: model:ir.actions.act_window,name:account_budget_oca.action_account_move_line_tree
+#: model:ir.model,name:account_budget_oca.model_account_move_line
 msgid "Account Move Line"
-msgstr "Lignes de facturation"
+msgstr "Ligne de facture"
 
 #. module: account_budget_oca
 #: model:ir.model.fields,field_description:account_budget_oca.field_account_budget_post__account_ids
@@ -52,7 +53,7 @@ msgstr "Réalisation"
 #. module: account_budget_oca
 #: model:ir.model.fields,field_description:account_budget_oca.field_crossovered_budget__message_needaction
 msgid "Action Needed"
-msgstr "Action requise"
+msgstr ""
 
 #. module: account_budget_oca
 #: model:ir.model,name:account_budget_oca.model_account_analytic_account
@@ -79,12 +80,12 @@ msgstr ""
 #. module: account_budget_oca
 #: model:ir.model.fields,field_description:account_budget_oca.field_crossovered_budget_lines__balance_amount
 msgid "Balance Amount"
-msgstr "Montant restant"
+msgstr "Solde restant"
 
 #. module: account_budget_oca
 #: model:ir.model.fields,field_description:account_budget_oca.field_account_move_line__balance_credit_debit
 msgid "Balance Credit Debit"
-msgstr ""
+msgstr "Balance Credit/Debit"
 
 #. module: account_budget_oca
 #: model:ir.model,name:account_budget_oca.model_crossovered_budget
@@ -205,7 +206,7 @@ msgstr "Créé le"
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.view_account_move_line_tree
 msgid "Disc.%"
-msgstr "Remise"
+msgstr "Remise %"
 
 #. module: account_budget_oca
 #: model:ir.model.fields,field_description:account_budget_oca.field_account_budget_post__display_name
@@ -291,11 +292,6 @@ msgstr "Facture(s)"
 #: model:ir.model.fields,field_description:account_budget_oca.field_crossovered_budget__message_is_follower
 msgid "Is Follower"
 msgstr ""
-
-#. module: account_budget_oca
-#: model:ir.model,name:account_budget_oca.model_account_move_line
-msgid "Journal Item"
-msgstr "Écriture comptable"
 
 #. module: account_budget_oca
 #: model:ir.model.fields,field_description:account_budget_oca.field_account_budget_post____last_update
@@ -389,7 +385,7 @@ msgstr "Montant réel"
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.view_account_move_line_tree
 msgid "Price"
-msgstr "Prix"
+msgstr "Montant"
 
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.crossovered_budget_view_form
@@ -420,7 +416,7 @@ msgstr "État"
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.view_account_move_line_tree
 msgid "Subtotal"
-msgstr "Sous-total"
+msgstr "Sous Total"
 
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.view_account_move_line_search
@@ -469,7 +465,7 @@ msgstr ""
 #. module: account_budget_oca
 #: model_terms:ir.ui.view,arch_db:account_budget_oca.view_account_move_line_tree
 msgid "UoM"
-msgstr "Unité de mesure"
+msgstr ""
 
 #. module: account_budget_oca
 #: model:ir.model.fields.selection,name:account_budget_oca.selection__crossovered_budget__state__validate

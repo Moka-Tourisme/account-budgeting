@@ -165,6 +165,7 @@
                                     attrs="{'readonly':[('state','!=','draft')]}"
                             >
                                 <tree>
+                                    <field name="sequence" widget="handle"/>
                                     <field name="general_budget_id"/>
                                     <field
                                             name="analytic_account_id"
@@ -400,7 +401,7 @@
         <field name="name">crossovered.budget.line.tree</field>
         <field name="model">crossovered.budget.lines</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree default_order="sequence">
                 <field name="crossovered_budget_id" invisible="1"/>
                 <field name="general_budget_id"/>
                 <field
@@ -433,10 +434,10 @@
                     </div>
                     <group col="4">
                         <field name="crossovered_budget_id"/>
-                        <field name="analytic_account_id"/>
+                        <field name="analytic_account_id" attrs="{'invisible': [('date_from', '=', False), ('date_to', '=', False)]}"/>
                         <field name="general_budget_id"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
+                        <field name="date_from" widget="daterange options={'related_end_date': 'date_to'}"/>
+                        <field name="date_to" widget="daterange options={'related_start_date': 'date_from'}"/>
                         <field name="paid_date"/>
                         <field name="planned_amount" widget="monetary"/>
                         <field name="practical_amount" widget="monetary"/>
@@ -472,7 +473,7 @@
         <field name="res_model">crossovered.budget.lines</field>
         <field name="view_mode">tree,form,pivot</field>
         <field name="view_id" ref="view_crossovered_budget_line_tree"/>
-        <field name="context">{'group_by': ['crossovered_budget_id', 'general_budget_id']}</field>
+        <field name="context">{'group_by': ['crossovered_budget_id']}</field>
     </record>
     <menuitem
             id="menu_act_crossovered_budget_lines_view"

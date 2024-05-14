@@ -25,7 +25,7 @@ class CrossoveredBudgetLines(models.Model):
     )
 
     @api.depends(
-        "date_from", "date_to", "analytic_account_id", "purchase_order_line_ids.price_subtotal",
+        "date_from", "date_to", "analytic_account_id", "purchase_order_line_ids.remaining_price_subtotal",
         "purchase_order_line_ids.order_id.state", "purchase_order_line_ids.order_id.invoice_status"
     )
     def _compute_committed_amount(self):
@@ -38,13 +38,13 @@ class CrossoveredBudgetLines(models.Model):
                     domain=[('account_analytic_id', '=', line.analytic_account_id.id),
                             ('order_id.state', '=', 'purchase'), ('order_id.date_approve', '>=', date_from),
                             ('order_id.date_approve', '<=', date_to), ('order_id.invoice_status', '!=', 'invoiced')],
-                    fields=['price_subtotal'],
+                    fields=['remaining_price_subtotal'],
                     groupby=['account_analytic_id'],
                     lazy=False
                 )
                 print("data: ", data)
                 if data:
-                    result = data[0]['price_subtotal']
+                    result = data[0]['remaining_price_subtotal']
             line.committed_amount = -result
 
 

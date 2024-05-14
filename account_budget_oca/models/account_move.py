@@ -6,6 +6,7 @@ from odoo.api import Environment
 
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
+    _description = "Account Move Line"
 
     crossovered_budget_line_id = fields.Many2one(
         comodel_name="crossovered.budget.lines", string="Budget Line"

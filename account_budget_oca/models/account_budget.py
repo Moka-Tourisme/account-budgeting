@@ -122,6 +122,9 @@ class CrossoveredBudgetLines(models.Model):
     _name = "crossovered.budget.lines"
     _description = "Budget Line"
     _rec_name = "crossovered_budget_id"
+    _order = "sequence"
+
+    sequence = fields.Integer(string="Sequence")
 
     crossovered_budget_id = fields.Many2one(
         comodel_name="crossovered.budget",
@@ -160,13 +163,15 @@ class CrossoveredBudgetLines(models.Model):
         string="Invoice Lines",
     )
 
+    @api.depends("general_budget_id.account_ids", "date_from", "date_to", "analytic_account_id")
     def _compute_invoice_line_ids(self):
         for line in self:
             invoice_line_ids = []
             acc_ids = line.general_budget_id.account_ids.ids
             date_to = line.date_to
             date_from = line.date_from
-            if line.analytic_account_id.id:
+            print("PASSAGE COMPUTE INVOICE LINE IDS")
+            if line.analytic_account_id.id and acc_ids:
                 self.env.cr.execute(
                     """
                     SELECT DISTINCT aml.move_id
@@ -188,7 +193,9 @@ class CrossoveredBudgetLines(models.Model):
                         ("account_id", "in", acc_ids),
                     ]
                 )
-            line.invoice_line_ids = invoice_line_ids
+                line.invoice_line_ids = invoice_line_ids
+            else:
+                line.invoice_line_ids = []
 
     @api.depends(
         "general_budget_id.account_ids", "date_from", "date_to", "analytic_account_id", "analytic_account_id.line_ids"
@@ -197,9 +204,10 @@ class CrossoveredBudgetLines(models.Model):
         for line in self:
             result = 0.0
             acc_ids = line.general_budget_id.account_ids.ids
+            print("acc_ids: ", acc_ids)
             date_to = line.date_to
             date_from = line.date_from
-            if line.analytic_account_id.id:
+            if line.analytic_account_id.id and acc_ids:
                 self.env.cr.execute(
                     """
                     SELECT SUM(amount)
@@ -210,9 +218,10 @@ class CrossoveredBudgetLines(models.Model):
                         AND general_account_id IN %s""",
                     (line.analytic_account_id.id, date_from, date_to, tuple(acc_ids)),
                 )
-                print("acc_ids: ", acc_ids)
                 result = self.env.cr.fetchone()[0] or 0.0
-            line.practical_amount = result
+                line.practical_amount = result
+            else:
+                line.practical_amount = 0.0
 
     @api.depends("paid_date", "date_from", "date_to", "planned_amount", "analytic_account_id.line_ids")
     def _compute_theoretical_amount(self):
@@ -261,7 +270,12 @@ class CrossoveredBudgetLines(models.Model):
     @api.depends('invoice_line_ids')
     def _compute_invoice_line_count(self):
         for line in self:
-            line.invoice_line_count = len(line.invoice_line_ids)
+            if line.invoice_line_ids:
+                print("line.invoice_line_ids: ", line.invoice_line_ids)
+                print("len(line.invoice_line_ids): ", len(line.invoice_line_ids))
+                line.invoice_line_count = len(line.invoice_line_ids)
+            else:
+                line.invoice_line_count = 0
 
     @api.model
     def _action_update_budget_invoice_lines(self):
