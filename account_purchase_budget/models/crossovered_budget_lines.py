@@ -47,7 +47,6 @@ class CrossoveredBudgetLines(models.Model):
                     result = data[0]['remaining_price_subtotal']
             line.committed_amount = -result
 
-
     def _compute_purchase_order_line_ids(self):
         for line in self:
             purchase_line_ids = []
@@ -57,9 +56,13 @@ class CrossoveredBudgetLines(models.Model):
                 purchase_line_ids = self.env['purchase.order.line'].search(
                     [('account_analytic_id', '=', line.analytic_account_id.id),
                      ('order_id.state', '=', 'purchase'), ('order_id.date_approve', '>=', date_from),
-                     ('order_id.date_approve', '<=', date_to), ('order_id.invoice_status', '!=', 'invoiced')]
+                     ('order_id.date_approve', '<=', date_to)]
                 )
+                for purchase_line in purchase_line_ids:
+                    if purchase_line.product_qty <= purchase_line.qty_invoiced:
+                        purchase_line_ids -= purchase_line
             line.purchase_order_line_ids = purchase_line_ids
+
     @api.depends('purchase_order_line_ids')
     def _compute_purchase_order_line_count(self):
         for line in self:

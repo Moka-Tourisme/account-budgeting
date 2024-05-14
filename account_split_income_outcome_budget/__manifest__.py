@@ -7,7 +7,7 @@
     "license": "LGPL-3",
     "author": "Odoo S.A., Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/account-budgeting",
-    "depends": ["account_budget_oca"],
+    "depends": ["account_budget_oca", "sale"],
     'auto_install': False,
     "data": [
         "views/crossovered_budget_lines.xml",
