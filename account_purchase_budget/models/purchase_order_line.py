@@ -18,7 +18,7 @@ class PurchaseOrderLines(models.Model):
     @api.depends("qty_invoiced", "price_subtotal")
     def _compute_remaining_price_subtotal(self):
         for line in self:
-            line.remaining_price_subtotal = line.qty_invoiced * line.price_unit if line.qty_invoiced != 0 else line.price_subtotal
+            line.remaining_price_subtotal = (line.qty_invoiced - line.qty_received) * line.price_unit if line.qty_invoiced != 0 else line.price_subtotal
 
     def write(self, vals):
         res = super().write(vals)
